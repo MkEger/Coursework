@@ -37,7 +37,7 @@ namespace Text_editor_1
             this.lblTitle.Name = "lblTitle";
             this.lblTitle.Size = new System.Drawing.Size(161, 20);
             this.lblTitle.TabIndex = 0;
-            this.lblTitle.Text = "Нещодавні файли";
+            this.lblTitle.Text = "Recent Files";
             
             // listViewRecentFiles
             this.listViewRecentFiles.View = View.Details;
@@ -49,17 +49,17 @@ namespace Text_editor_1
             this.listViewRecentFiles.TabIndex = 1;
             this.listViewRecentFiles.UseCompatibleStateImageBehavior = false;
             
-            this.listViewRecentFiles.Columns.Add("Ім'я файлу", 150);
-            this.listViewRecentFiles.Columns.Add("Шлях", 250);
-            this.listViewRecentFiles.Columns.Add("Відкрито", 100);
-            this.listViewRecentFiles.Columns.Add("К-сть", 60);
+            this.listViewRecentFiles.Columns.Add("File Name", 150);
+            this.listViewRecentFiles.Columns.Add("Path", 250);
+            this.listViewRecentFiles.Columns.Add("Last Opened", 100);
+            this.listViewRecentFiles.Columns.Add("Count", 60);
             
             // btnOpen
             this.btnOpen.Location = new System.Drawing.Point(297, 360);
             this.btnOpen.Name = "btnOpen";
             this.btnOpen.Size = new System.Drawing.Size(90, 30);
             this.btnOpen.TabIndex = 2;
-            this.btnOpen.Text = "Відкрити";
+            this.btnOpen.Text = "Open";
             this.btnOpen.UseVisualStyleBackColor = true;
             this.btnOpen.Click += new System.EventHandler(this.btnOpen_Click);
             
@@ -68,7 +68,7 @@ namespace Text_editor_1
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(90, 30);
             this.btnCancel.TabIndex = 3;
-            this.btnCancel.Text = "Скасувати";
+            this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             
@@ -77,7 +77,7 @@ namespace Text_editor_1
             this.btnClearHistory.Name = "btnClearHistory";
             this.btnClearHistory.Size = new System.Drawing.Size(120, 30);
             this.btnClearHistory.TabIndex = 4;
-            this.btnClearHistory.Text = "Очистити історію";
+            this.btnClearHistory.Text = "Clear History";
             this.btnClearHistory.UseVisualStyleBackColor = true;
             this.btnClearHistory.Click += new System.EventHandler(this.btnClearHistory_Click);
             
@@ -95,7 +95,7 @@ namespace Text_editor_1
             this.MinimizeBox = false;
             this.Name = "RecentFilesForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Нещодавні файли";
+            this.Text = "Recent Files";
             this.ResumeLayout(false);
             this.PerformLayout();
         }

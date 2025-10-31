@@ -24,7 +24,6 @@ namespace TextEditorMK.Repositories.Implementations
                 {
                     connection.Open();
                     
-                    // Check if file already exists
                     string checkQuery = "SELECT Id, OpenCount FROM RecentFiles WHERE FilePath = @FilePath";
                     using (var checkCommand = new MySqlCommand(checkQuery, connection))
                     {
