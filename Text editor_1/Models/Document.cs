@@ -23,6 +23,18 @@ namespace TextEditorMK.Models
             ModifiedAt = DateTime.Now;
             IsSaved = false;
         }
+
+        public void MarkAsSaved()
+        {
+            IsSaved = true;
+            ModifiedAt = DateTime.Now;
+        }
+
+        public void MarkAsModified()
+        {
+            IsSaved = false;
+            ModifiedAt = DateTime.Now;
+        }
     }
 }
 

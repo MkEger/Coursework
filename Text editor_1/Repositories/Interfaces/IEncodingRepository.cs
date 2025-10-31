@@ -9,7 +9,9 @@ namespace TextEditorMK.Repositories.Interfaces
         List<TextEncoding> GetAll();
         TextEncoding GetDefault();
         TextEncoding GetByCodePage(string codePage);
+        TextEncoding GetByName(string name);
     }
 }
+
 
 

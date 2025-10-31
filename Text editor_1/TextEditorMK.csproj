@@ -98,14 +98,32 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Form1.cs">
+    <Compile Include="BookmarksForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="BookmarksForm.Designer.cs">
+      <DependentUpon>BookmarksForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Factories\DocumentFactory.cs" />
+    <Compile Include="GoToLineForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GoToLineForm.Designer.cs">
+      <DependentUpon>GoToLineForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\ThemeHelper.cs" />
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Bookmark.cs" />
+    <Compile Include="Models\CodeSnippet.cs" />
     <Compile Include="Models\Document.cs" />
     <Compile Include="Models\EditorSettings.cs" />
+    <Compile Include="Models\EditorTheme.cs" />
+    <Compile Include="Models\Macro.cs" />
     <Compile Include="Models\MySqlConnection.cs" />
     <Compile Include="Models\RecentFile.cs" />
     <Compile Include="Models\TextEncoding.cs" />
@@ -127,8 +145,33 @@
     <Compile Include="Repositories\Interfaces\IEncodingRepository.cs" />
     <Compile Include="Repositories\MySqlDocumentRepository.cs" />
     <Compile Include="Repositories\MySqlRecentFileRepository.cs" />
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="Services\BookmarkService.cs" />
+    <Compile Include="Services\DocumentService.cs" />
+    <Compile Include="Services\EditorExtensionsService.cs" />
+    <Compile Include="Services\MacroService.cs" />
+    <Compile Include="Services\SnippetService.cs" />
+    <Compile Include="SettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SettingsForm.Designer.cs">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SnippetEditForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SnippetEditForm.Designer.cs">
+      <DependentUpon>SnippetEditForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SnippetsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SnippetsForm.Designer.cs">
+      <DependentUpon>SnippetsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Tests\ExtensionsServiceTest.cs" />
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -139,6 +182,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="RecentFilesForm.resx">
+      <DependentUpon>RecentFilesForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SettingsForm.resx">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -149,6 +198,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

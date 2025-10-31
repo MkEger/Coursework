@@ -24,7 +24,6 @@ namespace TextEditorMK.Repositories.Implementations
                 {
                     connection.Open();
                     
-                    // Check if file already exists
                     string checkQuery = "SELECT Id, OpenCount FROM RecentFiles WHERE FilePath = @FilePath";
                     using (var checkCommand = new MySqlCommand(checkQuery, connection))
                     {
@@ -33,7 +32,7 @@ namespace TextEditorMK.Repositories.Implementations
                         {
                             if (reader.Read())
                             {
-                                // File exists - update it
+ 
                                 int existingId = reader.GetInt32("Id");
                                 int currentCount = reader.GetInt32("OpenCount");
                                 reader.Close();
@@ -54,7 +53,7 @@ namespace TextEditorMK.Repositories.Implementations
                             else
                             {
                                 reader.Close();
-                                // File doesn't exist - insert new
+
                                 string insertQuery = @"
                                     INSERT INTO RecentFiles (FilePath, FileName, LastOpenedAt, OpenCount) 
                                     VALUES (@FilePath, @FileName, NOW(), 1)";
