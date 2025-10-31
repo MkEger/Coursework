@@ -508,6 +508,7 @@ namespace Text_editor_1
             this.Name = "SettingsForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Editor Settings";
+            this.Load += new System.EventHandler(this.SettingsForm_Load);
             this.tabControl1.ResumeLayout(false);
             this.tabAppearance.ResumeLayout(false);
             this.groupFont.ResumeLayout(false);

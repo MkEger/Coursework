@@ -5,9 +5,7 @@ using TextEditorMK.Models; // ? Додаємо для EditorTheme
 
 namespace Text_editor_1
 {
-    /// <summary>
-    /// Форма для переходу до конкретного рядка
-    /// </summary>
+
     public partial class GoToLineForm : Form
     {
         public int LineNumber { get; private set; }
@@ -20,38 +18,36 @@ namespace Text_editor_1
             _totalLines = totalLines;
             InitializeComponent();
             
-            // Встановити поточний рядок як значення за замовчуванням
+            
             lineNumberTextBox.Text = currentLine.ToString();
             lineNumberTextBox.SelectAll();
             
-            // Оновити лейбл з інформацією
+           
             infoLabel.Text = $"Line number (1 - {totalLines}):";
         }
 
-        /// <summary>
-        /// ? Застосувати тему до форми
-        /// </summary>
+
         public void ApplyTheme(EditorTheme theme)
         {
             if (theme == null) return;
 
             try
             {
-                // Основні кольори форми
+
                 this.BackColor = theme.BackgroundColor;
                 this.ForeColor = theme.ForegroundColor;
 
-                // Кольори контролів
+
                 lineNumberTextBox.BackColor = theme.TextBoxBackColor;
                 lineNumberTextBox.ForeColor = theme.TextBoxForeColor;
 
-                // Кольори кнопок
+
                 okButton.BackColor = theme.ButtonBackColor;
                 okButton.ForeColor = theme.ButtonForeColor;
                 cancelButton.BackColor = theme.ButtonBackColor;
                 cancelButton.ForeColor = theme.ButtonForeColor;
 
-                // Лейбл
+
                 infoLabel.ForeColor = theme.ForegroundColor;
             }
             catch (Exception ex)
@@ -77,13 +73,13 @@ namespace Text_editor_1
 
         private void lineNumberTextBox_KeyPress(object sender, KeyPressEventArgs e)
         {
-            // Дозволити тільки цифри, Backspace та Enter
+
             if (!char.IsDigit(e.KeyChar) && e.KeyChar != '\b' && e.KeyChar != '\r')
             {
                 e.Handled = true;
             }
             
-            // Enter = OK
+
             if (e.KeyChar == '\r')
             {
                 okButton.PerformClick();
@@ -92,7 +88,7 @@ namespace Text_editor_1
 
         private void lineNumberTextBox_TextChanged(object sender, EventArgs e)
         {
-            // Реальне time валідація
+
             okButton.Enabled = ValidateInput(false);
         }
 

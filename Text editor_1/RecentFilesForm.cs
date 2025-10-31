@@ -4,7 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TextEditorMK.Models;
 using TextEditorMK.Repositories.Interfaces;
-using TextEditorMK.Helpers; // ✅ Додаємо using для ThemeHelper
+using TextEditorMK.Helpers; 
 
 namespace Text_editor_1
 {
@@ -28,7 +28,6 @@ namespace Text_editor_1
             _encodingRepository = encodingRepository;
             _currentSettings = currentSettings;
             
-            // ✅ Застосувати тему якщо є налаштування
             if (_currentSettings != null)
             {
                 ApplyTheme();
@@ -37,9 +36,6 @@ namespace Text_editor_1
             LoadRecentFiles();
         }
 
-        /// <summary>
-        /// Застосувати поточну тему до форми
-        /// </summary>
         private void ApplyTheme()
         {
             try
@@ -49,20 +45,19 @@ namespace Text_editor_1
                 var theme = EditorTheme.GetByName(_currentSettings.Theme);
                 if (theme == null) return;
 
-                // ✅ Використовуємо ThemeHelper для застосування теми
+
                 ThemeHelper.ApplyThemeToForm(this, theme);
 
-                System.Diagnostics.Debug.WriteLine($"✅ Applied {theme.Name} theme to RecentFilesForm");
+                System.Diagnostics.Debug.WriteLine($" Applied {theme.Name} theme to RecentFilesForm");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"❌ Error applying theme to RecentFilesForm: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($" Error applying theme to RecentFilesForm: {ex.Message}");
             }
         }
 
         private void LoadRecentFiles()
         {
-            // ✅ Перевірка чи репозиторій доступний
             if (_recentFileRepository == null)
             {
                 MessageBox.Show("Recent files are not available.\nMySQL database is not connected.", 
@@ -88,7 +83,7 @@ namespace Text_editor_1
                     listViewRecentFiles.Items.Add(item);
                 }
 
-                System.Diagnostics.Debug.WriteLine($"✅ Loaded {recentFiles.Count} recent files");
+                System.Diagnostics.Debug.WriteLine($" Loaded {recentFiles.Count} recent files");
             }
             catch (Exception ex)
             {
@@ -103,11 +98,9 @@ namespace Text_editor_1
             {
                 var selectedFile = (RecentFile)listViewRecentFiles.SelectedItems[0].Tag;
                 
-                // Завантажити документ
                 try
                 {
-                    // ✅ Використовуємо правильне кодування
-                    var encoding = System.Text.Encoding.UTF8; // Дефолт
+                    var encoding = System.Text.Encoding.UTF8; 
                     string content = System.IO.File.ReadAllText(selectedFile.FilePath, encoding);
                     
                     SelectedDocument = new Document
@@ -120,7 +113,7 @@ namespace Text_editor_1
                         IsSaved = true
                     };
                     
-                    // Оновити статистику
+
                     selectedFile.UpdateLastOpened();
                     _recentFileRepository?.AddOrUpdate(selectedFile);
                     
@@ -178,6 +171,11 @@ namespace Text_editor_1
         private int GenerateNewId()
         {
             return new Random().Next(1, 10000);
+        }
+
+        private void RecentFilesForm_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

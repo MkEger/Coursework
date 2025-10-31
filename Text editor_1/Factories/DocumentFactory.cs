@@ -4,14 +4,10 @@ using TextEditorMK.Models;
 
 namespace TextEditorMK.Factories
 {
-    /// <summary>
-    /// Factory Method Pattern - для створення різних типів документів
-    /// </summary>
+
     public static class DocumentFactory
     {
-        /// <summary>
-        /// Створити новий пустий документ
-        /// </summary>
+
         public static Document CreateNewDocument()
         {
             return new Document
@@ -27,9 +23,7 @@ namespace TextEditorMK.Factories
             };
         }
 
-        /// <summary>
-        /// Створити документ з файлу
-        /// </summary>
+
         public static Document CreateFromFile(string filePath)
         {
             if (string.IsNullOrEmpty(filePath))
@@ -60,9 +54,7 @@ namespace TextEditorMK.Factories
             }
         }
 
-        /// <summary>
-        /// Створити документ з готовими даними (для RecentFiles)
-        /// </summary>
+
         public static Document CreateFromRecentFile(RecentFile recentFile)
         {
             if (recentFile == null)
@@ -71,9 +63,6 @@ namespace TextEditorMK.Factories
             return CreateFromFile(recentFile.FilePath);
         }
 
-        /// <summary>
-        /// Створити копію документа
-        /// </summary>
         public static Document CreateCopy(Document original)
         {
             if (original == null)

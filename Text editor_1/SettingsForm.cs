@@ -4,7 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TextEditorMK.Models;
 using TextEditorMK.Repositories.Interfaces;
-using TextEditorMK.Helpers; // ? Додаємо using для ThemeHelper
+using TextEditorMK.Helpers; 
 
 namespace Text_editor_1
 {
@@ -28,7 +28,6 @@ namespace Text_editor_1
             
             InitializeSettings();
             
-            // ? Використовуємо ThemeHelper для застосування теми
             try
             {
                 ApplyPreviewTheme();
@@ -36,7 +35,7 @@ namespace Text_editor_1
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"?? Initial preview theme error: {ex.Message}");
-                // Встановити дефолтну тему при помилці
+
                 try
                 {
                     if (txtPreview != null)
@@ -47,43 +46,36 @@ namespace Text_editor_1
                 }
                 catch
                 {
-                    // Ігноруємо помилки fallback
+
                 }
             }
         }
 
-        /// <summary>
-        /// Валідація налаштувань перед використанням
-        /// </summary>
+
         private void ValidateSettings(EditorSettings settings)
         {
             if (settings == null) return;
 
-            // Валідація FontSize
             if (settings.FontSize <= 0 || settings.FontSize > 72)
             {
                 settings.FontSize = 12;
             }
 
-            // Валідація FontFamily
             if (string.IsNullOrEmpty(settings.FontFamily))
             {
                 settings.FontFamily = "Consolas";
             }
 
-            // Валідація Theme
             if (string.IsNullOrEmpty(settings.Theme))
             {
                 settings.Theme = "Light";
             }
 
-            // Валідація AutoSaveInterval
             if (settings.AutoSaveInterval <= 0 || settings.AutoSaveInterval > 300)
             {
                 settings.AutoSaveInterval = 30;
             }
 
-            // Валідація розмірів вікна
             if (settings.WindowWidth <= 0 || settings.WindowWidth > 2000)
             {
                 settings.WindowWidth = 800;
@@ -94,7 +86,6 @@ namespace Text_editor_1
                 settings.WindowHeight = 600;
             }
 
-            // Валідація MaxRecentFiles
             if (settings.MaxRecentFiles <= 0 || settings.MaxRecentFiles > 50)
             {
                 settings.MaxRecentFiles = 10;
@@ -115,39 +106,33 @@ namespace Text_editor_1
                 
                 
                 int safeFontSize = Math.Max(8, Math.Min(72, _currentSettings.FontSize));
-                if (safeFontSize <= 0) safeFontSize = 12; // Додаткова перевірка
+                if (safeFontSize <= 0) safeFontSize = 12; 
                 
                 numFontSize.Value = safeFontSize;
 
-                // Теми
                 var themes = EditorTheme.GetAllThemes();
                 cmbTheme.Items.AddRange(themes.Select(t => t.Name).ToArray());
                 cmbTheme.Text = _currentSettings.Theme;
 
-                // Налаштування тексту
                 chkWordWrap.Checked = _currentSettings.WordWrap;
                 chkShowLineNumbers.Checked = _currentSettings.ShowLineNumbers;
                 
-                // Автозбереження
                 chkAutoSave.Checked = _currentSettings.AutoSave;
                 numAutoSaveInterval.Minimum = 10;
                 numAutoSaveInterval.Maximum = 300;
                 numAutoSaveInterval.Value = Math.Max(10, Math.Min(300, _currentSettings.AutoSaveInterval));
 
-                // Енкодування
                 cmbDefaultEncoding.Items.AddRange(new[] { "UTF-8", "UTF-16", "Windows-1251" });
                 cmbDefaultEncoding.Text = _currentSettings.DefaultEncoding;
 
-                // Недавні файли
                 numMaxRecentFiles.Minimum = 5;
                 numMaxRecentFiles.Maximum = 50;
                 numMaxRecentFiles.Value = Math.Max(5, Math.Min(50, _currentSettings.MaxRecentFiles));
 
-                // UI елементи
+
                 chkShowStatusBar.Checked = _currentSettings.ShowStatusBar;
                 chkShowToolbar.Checked = _currentSettings.ShowToolbar;
 
-                // Розмір вікна
                 numWindowWidth.Minimum = 400;
                 numWindowWidth.Maximum = 2000;
                 numWindowWidth.Value = Math.Max(400, Math.Min(2000, _currentSettings.WindowWidth));
@@ -162,7 +147,6 @@ namespace Text_editor_1
             {
                 System.Diagnostics.Debug.WriteLine($"? Error initializing settings: {ex.Message}");
                 
-                // Встановити безпечні дефолтні значення при помилці
                 try
                 {
                     numFontSize.Minimum = 8;
@@ -173,7 +157,6 @@ namespace Text_editor_1
                 }
                 catch
                 {
-                    // Ігноруємо помилки fallback
                 }
             }
         }
@@ -184,17 +167,15 @@ namespace Text_editor_1
             
             try
             {
-                // ? Використовуємо ThemeHelper для застосування теми
                 ThemeHelper.ApplyThemeToForm(this, _previewTheme);
 
-                // Попередній перегляд тексту
+
                 if (txtPreview != null)
                 {
-                    // ? Безпечне отримання розміру шрифту з валідацією
                     int fontSize = (int)numFontSize.Value;
                     if (fontSize <= 0 || fontSize > 72)
                     {
-                        fontSize = 12; // Дефолтний розмір
+                        fontSize = 12; 
                     }
                     
                     string fontFamily = string.IsNullOrEmpty(cmbFontFamily.Text) ? "Consolas" : cmbFontFamily.Text;
@@ -265,7 +246,6 @@ namespace Text_editor_1
         {
             try
             {
-                // ? Валідація даних перед збереженням
                 if (numFontSize.Value <= 0 || numFontSize.Value > 72)
                 {
                     MessageBox.Show("Font size must be between 1 and 72.", "Invalid Font Size", 
@@ -287,7 +267,6 @@ namespace Text_editor_1
                     return;
                 }
 
-                // Зберегти налаштування з валідованими значеннями
                 _currentSettings.FontFamily = cmbFontFamily.Text;
                 _currentSettings.FontSize = (int)numFontSize.Value;
                 _currentSettings.Theme = cmbTheme.Text;
@@ -338,7 +317,7 @@ namespace Text_editor_1
                     ValidateSettings(_currentSettings); 
                     InitializeSettings();
                     
-                    // ? Безпечний виклик попереднього перегляду
+
                     try
                     {
                         ApplyPreviewTheme();
@@ -360,6 +339,11 @@ namespace Text_editor_1
         }
 
         private void txtPreview_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void SettingsForm_Load(object sender, EventArgs e)
         {
 
         }

@@ -24,9 +24,7 @@ namespace TextEditorMK.Repositories.Implementations
         public TextEncoding GetByCodePage(string codePage) =>
             _encodings.FirstOrDefault(e => e.CodePage.Equals(codePage, System.StringComparison.OrdinalIgnoreCase));
         
-        /// <summary>
-        /// Знайти кодування за назвою
-        /// </summary>
+
         public TextEncoding GetByName(string name) =>
             _encodings.FirstOrDefault(e => e.Name.Equals(name, System.StringComparison.OrdinalIgnoreCase));
     }

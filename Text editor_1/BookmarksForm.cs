@@ -7,9 +7,7 @@ using TextEditorMK.Services;
 
 namespace Text_editor_1
 {
-    /// <summary>
-    /// Форма для управління закладками
-    /// </summary>
+
     public partial class BookmarksForm : Form
     {
         private readonly BookmarkService _bookmarkService;
@@ -24,24 +22,21 @@ namespace Text_editor_1
             LoadBookmarks();
         }
 
-        /// <summary>
-        /// ? Застосувати тему до форми
-        /// </summary>
+
         public void ApplyTheme(EditorTheme theme)
         {
             if (theme == null) return;
 
             try
             {
-                // Основні кольори форми
+
                 this.BackColor = theme.BackgroundColor;
                 this.ForeColor = theme.ForegroundColor;
 
-                // ListView
                 bookmarksListView.BackColor = theme.TextBoxBackColor;
                 bookmarksListView.ForeColor = theme.TextBoxForeColor;
 
-                // Кнопки
+   
                 var buttons = new[] { goToButton, deleteButton, clearAllButton, closeButton, refreshButton };
                 foreach (var button in buttons)
                 {
@@ -49,7 +44,7 @@ namespace Text_editor_1
                     button.ForeColor = theme.ButtonForeColor;
                 }
 
-                // Status label
+        
                 statusLabel.ForeColor = theme.ForegroundColor;
             }
             catch (Exception ex)
@@ -74,10 +69,10 @@ namespace Text_editor_1
                 bookmarksListView.Items.Add(item);
             }
             
-            // Оновити стан кнопок
+
             UpdateButtonStates();
             
-            // Оновити інформацію
+
             statusLabel.Text = $"{bookmarks.Count} bookmark(s)";
         }
 
@@ -99,10 +94,10 @@ namespace Text_editor_1
                 
                 try
                 {
-                    // Оновити статистику використання
+
                     bookmark.UpdateAccess();
                     
-                    // Перейти до рядка (це зробить BookmarkService)
+
                     GoToLine(bookmark.LineNumber);
                     
                     DialogResult = DialogResult.OK;
@@ -183,7 +178,6 @@ namespace Text_editor_1
 
         private void bookmarksListView_DoubleClick(object sender, EventArgs e)
         {
-            // Подвійний клік = перейти до закладки
             if (bookmarksListView.SelectedItems.Count > 0)
             {
                 goToButton.PerformClick();
@@ -224,7 +218,6 @@ namespace Text_editor_1
 
         private void BookmarksForm_Load(object sender, EventArgs e)
         {
-            // Встановити фокус на список
             bookmarksListView.Focus();
         }
     }

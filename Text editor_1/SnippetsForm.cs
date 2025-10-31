@@ -7,14 +7,12 @@ using TextEditorMK.Services;
 
 namespace Text_editor_1
 {
-    /// <summary>
-    /// Форма для управління сніппетами коду
-    /// </summary>
+
     public partial class SnippetsForm : Form
     {
         private readonly SnippetService _snippetService;
         private string _currentLanguage;
-        private EditorTheme _currentTheme; // ? Додаємо поле для збереження теми
+        private EditorTheme _currentTheme; 
 
         public CodeSnippet SelectedSnippet { get; private set; }
 
@@ -28,35 +26,33 @@ namespace Text_editor_1
             LoadSnippets();
         }
 
-        /// <summary>
-        /// ? Застосувати тему до форми
-        /// </summary>
+
         public void ApplyTheme(EditorTheme theme)
         {
             if (theme == null) return;
 
-            // ? Зберегти поточну тему
+
             _currentTheme = theme;
 
             try
             {
-                // Основні кольори форми
+
                 this.BackColor = theme.BackgroundColor;
                 this.ForeColor = theme.ForegroundColor;
 
-                // ListView
+
                 snippetsListView.BackColor = theme.TextBoxBackColor;
                 snippetsListView.ForeColor = theme.TextBoxForeColor;
 
-                // ComboBox
+
                 languageComboBox.BackColor = theme.TextBoxBackColor;
                 languageComboBox.ForeColor = theme.TextBoxForeColor;
 
-                // Preview TextBox
+
                 previewTextBox.BackColor = theme.TextBoxBackColor;
                 previewTextBox.ForeColor = theme.TextBoxForeColor;
 
-                // Кнопки
+  
                 var buttons = new[] { insertButton, newButton, editButton, deleteButton, closeButton };
                 foreach (var button in buttons)
                 {
@@ -64,12 +60,10 @@ namespace Text_editor_1
                     button.ForeColor = theme.ButtonForeColor;
                 }
 
-                // Labels
                 languageLabel.ForeColor = theme.ForegroundColor;
                 descriptionLabel.ForeColor = theme.ForegroundColor;
                 statusLabel.ForeColor = theme.ForegroundColor;
 
-                // GroupBox
                 previewGroupBox.ForeColor = theme.ForegroundColor;
             }
             catch (Exception ex)
@@ -78,9 +72,7 @@ namespace Text_editor_1
             }
         }
 
-        /// <summary>
-        /// ? Застосувати поточну тему до SnippetEditForm
-        /// </summary>
+ 
         private void ApplyThemeToEditForm(SnippetEditForm editForm)
         {
             if (_currentTheme != null)
@@ -106,7 +98,6 @@ namespace Text_editor_1
                 "sql"
             });
             
-            // Встановити поточну мову
             int index = languageComboBox.Items.IndexOf(_currentLanguage);
             languageComboBox.SelectedIndex = index >= 0 ? index : 0;
         }
@@ -195,7 +186,7 @@ namespace Text_editor_1
             
             using (var editForm = new SnippetEditForm(newSnippet, isNew: true))
             {
-                // ? Застосувати поточну тему
+                // Apply current theme
                 ApplyThemeToEditForm(editForm);
                 
                 if (editForm.ShowDialog() == DialogResult.OK)
@@ -222,14 +213,14 @@ namespace Text_editor_1
                 
                 using (var editForm = new SnippetEditForm(snippet, isNew: false))
                 {
-                    // ? Застосувати поточну тему
+                    // Apply current theme
                     ApplyThemeToEditForm(editForm);
                     
                     if (editForm.ShowDialog() == DialogResult.OK)
                     {
                         try
                         {
-                            // Видалити старий та додати оновлений
+                            // Delete old and add updated
                             _snippetService.DeleteSnippet(snippet.Name);
                             _snippetService.AddSnippet(editForm.Snippet);
                             LoadSnippets();

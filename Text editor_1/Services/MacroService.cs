@@ -6,9 +6,7 @@ using TextEditorMK.Models;
 
 namespace TextEditorMK.Services
 {
-    /// <summary>
-    /// Service Layer Pattern - Сервіс для управління макросами
-    /// </summary>
+
     public class MacroService
     {
         private readonly RichTextBox _textBox;

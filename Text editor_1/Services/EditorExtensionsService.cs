@@ -5,15 +5,12 @@ using TextEditorMK.Models;
 
 namespace TextEditorMK.Services
 {
-    /// <summary>
-    /// Service Layer Pattern - Координатор всіх розширених функцій редактора
-    /// Інтегрує макроси, сніппети, закладки та інші функції
-    /// </summary>
+
     public class EditorExtensionsService
     {
         private readonly RichTextBox _textBox;
         
-        // Сервіси розширень
+
         public MacroService Macros { get; private set; }
         public SnippetService Snippets { get; private set; }
         public BookmarkService Bookmarks { get; private set; }
@@ -51,9 +48,7 @@ namespace TextEditorMK.Services
             }
         }
 
-        /// <summary>
-        /// Визначити мову програмування за розширенням файлу
-        /// </summary>
+
         public void DetectLanguageFromFile(string filePath)
         {
             if (string.IsNullOrEmpty(filePath))
@@ -109,18 +104,13 @@ namespace TextEditorMK.Services
             }
         }
 
-        /// <summary>
-        /// Встановити мову програмування
-        /// </summary>
         public void SetLanguage(string language)
         {
             CurrentLanguage = language?.ToLower() ?? "text";
             System.Diagnostics.Debug.WriteLine($"? Language set to: {CurrentLanguage}");
         }
 
-        /// <summary>
-        /// Розумна вставка сніппету на основі контексту
-        /// </summary>
+
         public void TriggerSmartSnippet(string trigger)
         {
             if (!IsExtensionsEnabled || string.IsNullOrEmpty(trigger))
@@ -143,9 +133,7 @@ namespace TextEditorMK.Services
             }
         }
 
-        /// <summary>
-        /// Почати запис макросу
-        /// </summary>
+
         public void StartMacroRecording(string macroName)
         {
             if (!IsExtensionsEnabled)
@@ -162,9 +150,7 @@ namespace TextEditorMK.Services
             }
         }
 
-        /// <summary>
-        /// Зупинити запис макросу
-        /// </summary>
+
         public void StopMacroRecording()
         {
             if (!IsExtensionsEnabled || !Macros.IsRecording)
@@ -182,9 +168,7 @@ namespace TextEditorMK.Services
             }
         }
 
-        /// <summary>
-        /// Перемкнути закладку на поточному рядку
-        /// </summary>
+
         public void ToggleBookmarkAtCursor()
         {
             if (!IsExtensionsEnabled)
@@ -202,9 +186,6 @@ namespace TextEditorMK.Services
             }
         }
 
-        /// <summary>
-        /// Перейти до наступної закладки
-        /// </summary>
         public bool GoToNextBookmark()
         {
             if (!IsExtensionsEnabled)
@@ -223,9 +204,7 @@ namespace TextEditorMK.Services
             }
         }
 
-        /// <summary>
-        /// Перейти до попередньої закладки
-        /// </summary>
+
         public bool GoToPreviousBookmark()
         {
             if (!IsExtensionsEnabled)
@@ -244,9 +223,7 @@ namespace TextEditorMK.Services
             }
         }
 
-        /// <summary>
-        /// Отримати статистику використання розширень
-        /// </summary>
+
         public EditorExtensionsStatistics GetStatistics()
         {
             return new EditorExtensionsStatistics
@@ -273,7 +250,7 @@ namespace TextEditorMK.Services
             }
         }
 
-        // Події для інтеграції з UI
+
         protected virtual void OnMacroStarted(string macroName)
         {
             MacroStarted?.Invoke(this, new ExtensionEventArgs("MacroStarted", macroName));
@@ -295,9 +272,6 @@ namespace TextEditorMK.Services
         }
     }
 
-    /// <summary>
-    /// Аргументи подій для розширень редактора
-    /// </summary>
     public class ExtensionEventArgs : EventArgs
     {
         public string ActionType { get; }
@@ -312,9 +286,6 @@ namespace TextEditorMK.Services
         }
     }
 
-    /// <summary>
-    /// Статистика використання розширень
-    /// </summary>
     public class EditorExtensionsStatistics
     {
         public string CurrentLanguage { get; set; }

@@ -3,9 +3,7 @@ using System.Collections.Generic;
 
 namespace TextEditorMK.Models
 {
-    /// <summary>
-    /// Модель макросу для автоматизації дій
-    /// </summary>
+
     public class Macro
     {
         public int Id { get; set; }
@@ -34,9 +32,7 @@ namespace TextEditorMK.Models
         }
     }
 
-    /// <summary>
-    /// Дія макросу
-    /// </summary>
+
     public class MacroAction
     {
         public int Id { get; set; }
@@ -51,9 +47,7 @@ namespace TextEditorMK.Models
         }
     }
 
-    /// <summary>
-    /// Типи дій макросу
-    /// </summary>
+   
     public enum MacroActionType
     {
         Insert,

@@ -13,7 +13,7 @@ namespace TextEditorMK.Services
         private readonly IDocumentRepository _documentRepository;
         private readonly IRecentFileRepository _recentFileRepository;
         private readonly IEncodingRepository _encodingRepository;
-        
+
         private readonly Dictionary<int, Document> _documentCache;
         private readonly Dictionary<string, RecentFile> _recentFileCache;
 
@@ -32,7 +32,7 @@ namespace TextEditorMK.Services
 
             _documentCache = new Dictionary<int, Document>();
             _recentFileCache = new Dictionary<string, RecentFile>();
-            
+
             if (_recentFileRepository != null)
             {
                 LoadRecentFilesCache();
@@ -53,7 +53,7 @@ namespace TextEditorMK.Services
                 document.TextEncoding = _encodingRepository.GetDefault();
 
                 AddDocument(document);
-                
+
                 OnDocumentAdded(document);
                 return document;
             }
@@ -117,7 +117,7 @@ namespace TextEditorMK.Services
                 }
 
                 System.Text.Encoding encoding = System.Text.Encoding.UTF8;
-                
+
                 if (document.TextEncoding != null)
                 {
                     switch (document.TextEncoding.CodePage.ToLower())
@@ -289,8 +289,8 @@ namespace TextEditorMK.Services
 
             try
             {
-                var recentFile = _recentFileCache.ContainsKey(filePath) 
-                    ? _recentFileCache[filePath] 
+                var recentFile = _recentFileCache.ContainsKey(filePath)
+                    ? _recentFileCache[filePath]
                     : new RecentFile
                     {
                         Id = GenerateId(),
@@ -299,10 +299,10 @@ namespace TextEditorMK.Services
                     };
 
                 recentFile.UpdateLastOpened();
-                
+
                 _recentFileRepository.AddOrUpdate(recentFile);
                 _recentFileCache[filePath] = recentFile;
-                
+
                 System.Diagnostics.Debug.WriteLine($"Recent file saved to MySQL: {fileName}");
             }
             catch (Exception ex)
@@ -310,7 +310,7 @@ namespace TextEditorMK.Services
                 System.Diagnostics.Debug.WriteLine($"Failed to save recent file to MySQL: {ex.Message}");
             }
         }
-        
+
         public List<RecentFile> GetRecentFiles(int count = 10)
         {
             if (_recentFileRepository == null)
@@ -322,9 +322,9 @@ namespace TextEditorMK.Services
             try
             {
                 var recentFiles = _recentFileRepository.GetRecent(count);
-                
+
                 var existingFiles = recentFiles.Where(f => File.Exists(f.FilePath)).ToList();
-                
+
                 System.Diagnostics.Debug.WriteLine($"Loaded {existingFiles.Count} recent files from MySQL");
                 return existingFiles;
             }
@@ -349,7 +349,7 @@ namespace TextEditorMK.Services
                 {
                     _recentFileRepository.Delete(file.Id);
                 }
-                
+
                 _recentFileCache.Clear();
                 System.Diagnostics.Debug.WriteLine($"Cleared {allRecentFiles.Count} recent files from MySQL");
             }
@@ -393,7 +393,7 @@ namespace TextEditorMK.Services
             try
             {
                 var bytes = File.ReadAllBytes(filePath);
-                
+
                 if (bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF)
                     return System.Text.Encoding.UTF8;
 
@@ -404,7 +404,7 @@ namespace TextEditorMK.Services
                     return System.Text.Encoding.BigEndianUnicode;
 
                 var extension = Path.GetExtension(filePath).ToLower();
-                
+
                 switch (extension)
                 {
                     case ".md":
@@ -448,7 +448,7 @@ namespace TextEditorMK.Services
             {
                 var backupPath = $"{filePath}.backup.{DateTime.Now:yyyyMMddHHmmss}";
                 File.Copy(filePath, backupPath, true);
-                
+
                 CleanupBackups(filePath, 5);
             }
             catch (Exception ex)
@@ -505,9 +505,9 @@ namespace TextEditorMK.Services
             try
             {
                 var allDocuments = GetAllDocuments();
-                
-                var recentFiles = _recentFileRepository != null 
-                    ? GetRecentFiles(100) 
+
+                var recentFiles = _recentFileRepository != null
+                    ? GetRecentFiles(100)
                     : new List<RecentFile>();
 
                 return new DocumentServiceStatistics

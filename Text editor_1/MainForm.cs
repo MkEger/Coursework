@@ -9,42 +9,30 @@ using TextEditorMK.Services;
 
 namespace Text_editor_1
 {
-    /// <summary>
-    /// Головна форма текстового редактора з 4 шаблонами проектування:
-    /// 1. Abstract Factory - для вибору типу репозиторіїв
-    /// 2. Command Pattern - для обробки команд меню
-    /// 3. Factory Method - для створення документів
-    /// 4. Observer Pattern - для відслідковування змін документа
-    /// + Service Layer - для бізнес-логіки
-    /// </summary>
+
     public partial class MainForm : Form
     {
         #region Fields
 
-        // Repository Pattern - абстракція доступу до даних
         private IDocumentRepository _documentRepository;
         private IEncodingRepository _encodingRepository;
         private IRecentFileRepository _recentFileRepository;
         private IEditorSettingsRepository _settingsRepository;
 
-        // Service Layer - бізнес-логіка
-        private DocumentService _documentService;
-        private TextEditorMK.Services.EditorExtensionsService _extensionsService; // ✅ Додаємо сервіс розширень
 
-        // Поточний стан
+        private DocumentService _documentService;
+        private TextEditorMK.Services.EditorExtensionsService _extensionsService; 
+
+
         private Document _currentDocument;
         private EditorSettings _currentSettings;
 
-        // Observer Pattern - автозбереження
         private Timer _autoSaveTimer;
         
-        // Markdown підсвітка
         private Timer _markdownHighlightTimer;
         
-        // ✅ Прапорець для контролю Markdown підсвітки
         private bool _markdownHighlightEnabled = true;
         
-        // ✅ Додаткові поля для оптимізації
         private bool _isHighlighting = false;
         private string _lastHighlightedText = string.Empty;
 
@@ -57,7 +45,7 @@ namespace Text_editor_1
             InitializeComponent();
             InitializeRepositories();
             InitializeDocumentService();
-            InitializeExtensionsService(); // ✅ Ініціалізація сервісу розширень
+            InitializeExtensionsService(); 
             InitializeAutoSave();
             CreateNewDocument();
         }
@@ -66,18 +54,15 @@ namespace Text_editor_1
 
         #region Abstract Factory Pattern
 
-        /// <summary>
-        /// Abstract Factory Pattern - вибір типу репозиторіїв на основі доступності БД
-        /// </summary>
+
         private void InitializeRepositories()
         {
             try
             {
-                // ОБОВ'ЯЗКОВЕ підключення до MySQL для недавніх файлів
+
                 _recentFileRepository = new MySqlRecentFileRepository();
                 _documentRepository = new MySqlDocumentRepository();
                 
-                // Інші репозиторії можуть бути in-memory
                 _encodingRepository = new EncodingRepository();
                 _settingsRepository = new EditorSettingsRepository();
                 
@@ -101,22 +86,20 @@ namespace Text_editor_1
                     MessageBoxButtons.OK, 
                     MessageBoxIcon.Error);
                 
-                // Для недавніх файлів БЕЗ fallback - показуємо що БД недоступна
+
                 _recentFileRepository = null;
-                _documentRepository = new DocumentRepository(); // Fallback для документів
+                _documentRepository = new DocumentRepository(); 
                 _encodingRepository = new EncodingRepository();
                 _settingsRepository = new EditorSettingsRepository();
             }
         }
 
-        /// <summary>
-        /// Ініціалізація DocumentService з підпискою на події
-        /// </summary>
+
         private void InitializeDocumentService()
         {
             _documentService = new DocumentService(_documentRepository, _recentFileRepository, _encodingRepository);
             
-            // Підписатися на події DocumentService
+
             _documentService.DocumentAdded += OnDocumentServiceEvent;
             _documentService.DocumentSaved += OnDocumentServiceEvent;
             _documentService.DocumentDeleted += OnDocumentServiceEvent;
@@ -128,34 +111,30 @@ namespace Text_editor_1
             System.Diagnostics.Debug.WriteLine($"[DocumentService] {e.Action}: {e.Document.FileName} at {e.Timestamp}");
         }
 
-        /// <summary>
-        /// ✅ Ініціалізація сервісу розширених функцій
-        /// </summary>
+
         private void InitializeExtensionsService()
         {
             try
             {
                 _extensionsService = new TextEditorMK.Services.EditorExtensionsService(richTextBox1);
                 
-                // Підписуємося на події розширень
+
                 _extensionsService.MacroStarted += OnExtensionEvent;
                 _extensionsService.MacroStopped += OnExtensionEvent;
                 _extensionsService.SnippetInserted += OnExtensionEvent;
                 _extensionsService.BookmarkToggled += OnExtensionEvent;
                 
-                System.Diagnostics.Debug.WriteLine("✅ Extensions service initialized successfully");
+                System.Diagnostics.Debug.WriteLine(" Extensions service initialized successfully");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"❌ Failed to initialize extensions service: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($" Failed to initialize extensions service: {ex.Message}");
                 MessageBox.Show($"Warning: Advanced features may not work properly.\nError: {ex.Message}", 
                     "Extensions Initialization Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
-        /// <summary>
-        /// Обробник подій розширень для показу статусних повідомлень
-        /// </summary>
+
         private void OnExtensionEvent(object sender, TextEditorMK.Services.ExtensionEventArgs e)
         {
             try
@@ -202,42 +181,35 @@ namespace Text_editor_1
             }
         }
 
-        /// <summary>
-        /// Observer Pattern - реагування на зміни тексту
-        /// </summary>
+
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
             if (_currentDocument != null && richTextBox1 != null)
             {
-                // ✅ Запобігти зворотним викликам під час підсвітки
                 if (_isHighlighting) return;
 
-                // Оновити документ через сервіс
                 _currentDocument.SetContent(richTextBox1.Text);
                 _documentService.UpdateDocument(_currentDocument);
                 
-                // ✅ Застосувати підсвітку тільки якщо вона увімкнена і це Markdown файл
                 if (_markdownHighlightEnabled && 
                     !string.IsNullOrEmpty(_currentDocument.FilePath) && 
                     Path.GetExtension(_currentDocument.FilePath).ToLower() == ".md")
                 {
-                    // ✅ Перевірити чи текст змінився з останньої підсвітки
                     if (_lastHighlightedText == richTextBox1.Text) return;
                     
-                    // ✅ Розумна затримка залежно від розміру тексту та типу зміни
                     int textLength = richTextBox1.Text.Length;
                     int delay;
                     
                     if (textLength > 10000)
-                        delay = 2000;  // Великий файл - довга затримка
+                        delay = 2000;  
                     else if (textLength > 5000)
-                        delay = 1500;  // Середній файл
+                        delay = 1500;  
                     else if (textLength > 1000)
-                        delay = 800;   // Невеликий файл
+                        delay = 800;   
                     else
-                        delay = 400;   // Маленький файл - швидка реакція
+                        delay = 400;   
                     
-                    // ✅ Перезавантажити таймер з новою затримкою
+
                     if (_markdownHighlightTimer != null)
                     {
                         _markdownHighlightTimer.Stop();
@@ -253,22 +225,17 @@ namespace Text_editor_1
                     }
                 }
                 
-                // Оновити UI (це теж можна оптимізувати)
                 UpdateTitle();
                 UpdateStatusBar();
             }
         }
 
-        /// <summary>
-        /// ✅ Окремий обробник таймера для кращого контролю
-        /// </summary>
         private void MarkdownHighlightTimer_Tick(object sender, EventArgs e)
         {
             try
             {
                 _markdownHighlightTimer?.Stop();
                 
-                // ✅ Подвійна перевірка та захист від повторних викликів
                 if (_markdownHighlightEnabled && 
                     !_isHighlighting &&
                     !string.IsNullOrEmpty(_currentDocument?.FilePath) && 
@@ -397,9 +364,7 @@ namespace Text_editor_1
 
         #region Document Operations (using DocumentService)
 
-        /// <summary>
-        /// Створення нового документа через DocumentService
-        /// </summary>
+
         public void CreateNewDocument()
         {
             try
@@ -420,9 +385,7 @@ namespace Text_editor_1
             }
         }
 
-        /// <summary>
-        /// Відкриття документа через DocumentService
-        /// </summary>
+
         public void OpenDocument()
         {
             var openDialog = new OpenFileDialog
@@ -442,13 +405,11 @@ namespace Text_editor_1
                     {
                         richTextBox1.Text = _currentDocument.Content;
                         
-                        // ✅ Оновити мову в сервісі розширень
                         if (_extensionsService != null)
                         {
                             _extensionsService.DetectLanguageFromFile(openDialog.FileName);
                         }
                         
-                        // ✅ Застосувати підсвітку синтаксиса для Markdown
                         if (Path.GetExtension(openDialog.FileName).ToLower() == ".md")
                         {
                             ApplyMarkdownHighlighting();
@@ -470,9 +431,6 @@ namespace Text_editor_1
             }
         }
 
-        /// <summary>
-        /// Збереження документа через DocumentService
-        /// </summary>
         public void SaveDocument()
         {
             if (_currentDocument == null) return;
@@ -496,9 +454,6 @@ namespace Text_editor_1
             }
         }
 
-        /// <summary>
-        /// Збереження документа як новий файл
-        /// </summary>
         public void SaveAsDocument()
         {
             if (_currentDocument == null) return;
@@ -517,7 +472,6 @@ namespace Text_editor_1
                 {
                     _documentService.SaveDocument(_currentDocument, saveDialog.FileName);
                     
-                    // ✅ Застосувати підсвітку якщо це Markdown файл
                     if (Path.GetExtension(saveDialog.FileName).ToLower() == ".md")
                     {
                         ApplyMarkdownHighlighting();
@@ -537,14 +491,10 @@ namespace Text_editor_1
             }
         }
 
-        /// <summary>
-        /// Показ недавніх файлів
-        /// </summary>
         public void ShowRecentFiles()
         {
             try
             {
-                // ✅ Передаємо поточні налаштування для застосування теми
                 var recentForm = new RecentFilesForm(_recentFileRepository, _documentRepository, _encodingRepository, _currentSettings);
                 if (recentForm.ShowDialog() == DialogResult.OK && recentForm.SelectedDocument != null)
                 {
@@ -557,9 +507,6 @@ namespace Text_editor_1
             }
         }
 
-        /// <summary>
-        /// Показ налаштувань редактора
-        /// </summary>
         public void ShowSettings()
         {
             try
@@ -611,22 +558,17 @@ namespace Text_editor_1
             }
         }
 
-        /// <summary>
-        /// ✅ Оптимізоване Observer Pattern - оновлення статистики з обмеженням частоти
-        /// </summary>
         private void UpdateStatusBar()
         {
             if (statusStrip1 == null || _currentDocument == null || _isHighlighting) return;
 
             try
             {
-                // ✅ Кешовані значення для уникнення повторних обчислень
                 var content = _currentDocument.Content ?? string.Empty;
                 var charCount = content.Length;
                 
                 if (statusStrip1.Items.Count > 0)
                 {
-                    // ✅ Обчислювати слова та рядка тільки якщо текст не занадто великий
                     if (charCount < 10000)
                     {
                         var wordCount = string.IsNullOrWhiteSpace(content) ? 0 :
@@ -640,12 +582,10 @@ namespace Text_editor_1
                     }
                     else
                     {
-                        // Для великих файлів показувати тільки символи
                         statusStrip1.Items[0].Text = $"Chars: {charCount:N0} | Large file";
                     }
                 }
 
-                // ✅ Позицію курсора обчислювати тільки якщо потрібно
                 if (richTextBox1 != null && statusStrip1.Items.Count > 1 && !_isHighlighting)
                 {
                     try
@@ -657,12 +597,10 @@ namespace Text_editor_1
                     }
                     catch
                     {
-                        // Ігнорувати помилки позиції курсора під час підсвітки
                         statusStrip1.Items[1].Text = "Ln -, Col -";
                     }
                 }
 
-                // Енкодування
                 if (statusStrip1.Items.Count > 2)
                 {
                     statusStrip1.Items[2].Text = _currentDocument.TextEncoding?.Name ?? "UTF-8";
@@ -680,7 +618,6 @@ namespace Text_editor_1
             {
                 statusStrip1.Items[3].Text = message;
                 
-                // Таймер для очищення повідомлення
                 var messageTimer = new Timer();
                 messageTimer.Interval = duration;
                 messageTimer.Tick += (s, e) =>
@@ -700,14 +637,14 @@ namespace Text_editor_1
             {
                 _currentSettings = _settingsRepository.GetCurrent();
                 
-                // ✅ Перевірка чи налаштування коректні
+
                 if (_currentSettings == null)
                 {
                     System.Diagnostics.Debug.WriteLine("⚠️ No settings found, creating default");
                     _currentSettings = new EditorSettings();
                 }
 
-                // ✅ Валідація критичних параметрів
+
                 if (_currentSettings.FontSize <= 0 || _currentSettings.FontSize > 72)
                 {
                     System.Diagnostics.Debug.WriteLine($"⚠️ Invalid FontSize {_currentSettings.FontSize}, resetting to 12");
@@ -730,25 +667,25 @@ namespace Text_editor_1
                 }
 
                 ApplySettings(_currentSettings);
-                System.Diagnostics.Debug.WriteLine($"✅ Settings loaded: Font={_currentSettings.FontFamily} {_currentSettings.FontSize}pt");
+                System.Diagnostics.Debug.WriteLine($" Settings loaded: Font={_currentSettings.FontFamily} {_currentSettings.FontSize}pt");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"❌ Failed to load settings: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($" Failed to load settings: {ex.Message}");
                 
-                // Створити дефолтні налаштування при помилці
+
                 _currentSettings = new EditorSettings();
                 ApplyDefaultSettings();
                 
-                // Спробувати зберегти дефолтні налаштування
+
                 try
                 {
                     _settingsRepository.Update(_currentSettings);
-                    System.Diagnostics.Debug.WriteLine("✅ Saved default settings to repository");
+                    System.Diagnostics.Debug.WriteLine(" Saved default settings to repository");
                 }
                 catch (Exception saveEx)
                 {
-                    System.Diagnostics.Debug.WriteLine($"⚠️ Failed to save default settings: {saveEx.Message}");
+                    System.Diagnostics.Debug.WriteLine($" Failed to save default settings: {saveEx.Message}");
                 }
             }
         }
@@ -759,18 +696,17 @@ namespace Text_editor_1
 
             try
             {
-                // Застосувати тему
+
                 var theme = EditorTheme.GetByName(settings.Theme);
                 ApplyTheme(theme);
 
-                // Застосувати налаштування шрифту з перевіркою розміру
+
                 if (richTextBox1 != null)
                 {
-                    // ✅ Перевірка та виправлення розміру шрифту
                     int fontSize = settings.FontSize;
                     if (fontSize <= 0 || fontSize > 72)
                     {
-                        fontSize = 12; // Дефолтний розмір
+                        fontSize = 12;
                         System.Diagnostics.Debug.WriteLine($"⚠️ Invalid font size {settings.FontSize}, using default 12");
                     }
 
@@ -789,45 +725,39 @@ namespace Text_editor_1
                     }
                 }
 
-                // Застосувати розмір вікна з перевіркою
                 if (settings.WindowWidth > 400 && settings.WindowHeight > 300)
                 {
                     this.Size = new System.Drawing.Size(settings.WindowWidth, settings.WindowHeight);
                 }
 
-                // Застосувати видимість компонентів
                 if (statusStrip1 != null)
                 {
                     statusStrip1.Visible = settings.ShowStatusBar;
                 }
 
-                // Оновити інтервал автозбереження з перевіркою
+   
                 if (_autoSaveTimer != null)
                 {
                     int interval = settings.AutoSaveInterval;
                     if (interval < 10 || interval > 300)
                     {
-                        interval = 30; // Дефолтний інтервал
-                        System.Diagnostics.Debug.WriteLine($"⚠️ Invalid autosave interval {settings.AutoSaveInterval}, using default 30");
+                        interval = 30; 
+                        System.Diagnostics.Debug.WriteLine($" Invalid autosave interval {settings.AutoSaveInterval}, using default 30");
                     }
 
-                    _autoSaveTimer.Interval = interval * 1000; // Convert to milliseconds
+                    _autoSaveTimer.Interval = interval * 1000; 
                     _autoSaveTimer.Enabled = settings.AutoSave;
                 }
 
-                System.Diagnostics.Debug.WriteLine($"✅ Settings applied successfully: Font={settings.FontFamily} {settings.FontSize}pt, Theme={settings.Theme}");
+                System.Diagnostics.Debug.WriteLine($"Settings applied successfully: Font={settings.FontFamily} {settings.FontSize}pt, Theme={settings.Theme}");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"❌ Failed to apply settings: {ex.Message}");
-                // Застосувати дефолтні налаштування при помилці
+                System.Diagnostics.Debug.WriteLine($"Failed to apply settings: {ex.Message}");
                 ApplyDefaultSettings();
             }
         }
 
-        /// <summary>
-        /// Застосувати дефолтні налаштування при помилці
-        /// </summary>
         private void ApplyDefaultSettings()
         {
             try
@@ -843,43 +773,37 @@ namespace Text_editor_1
 
                 if (_autoSaveTimer != null)
                 {
-                    _autoSaveTimer.Interval = 30000; // 30 seconds
+                    _autoSaveTimer.Interval = 30000; 
                     _autoSaveTimer.Enabled = true;
                 }
 
-                System.Diagnostics.Debug.WriteLine("✅ Applied default settings due to error");
+                System.Diagnostics.Debug.WriteLine("Applied default settings due to error");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"❌ Failed to apply default settings: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Failed to apply default settings: {ex.Message}");
             }
         }
 
-        /// <summary>
-        /// Застосувати тему до інтерфейсу
-        /// </summary>
+
         private void ApplyTheme(EditorTheme theme)
         {
             if (theme == null) return;
 
             try
             {
-                // Основні кольори форми
                 this.BackColor = theme.BackgroundColor;
                 this.ForeColor = theme.ForegroundColor;
 
-                // ✅ Застосувати до RichTextBox з повним скиданням форматування
                 if (richTextBox1 != null)
                 {
-                    // Використати новий метод для повного скидання форматування
                     ResetTextFormatting(theme);
                     
-                    // ✅ Якщо це Markdown файл, повторно застосувати підсвітку після короткої затримки
                     if (!string.IsNullOrEmpty(_currentDocument?.FilePath) && 
                         Path.GetExtension(_currentDocument.FilePath).ToLower() == ".md")
                     {
                         var themeTimer = new Timer();
-                        themeTimer.Interval = 200; // Збільшуємо затримку для стабільності
+                        themeTimer.Interval = 200; 
                         themeTimer.Tick += (s, e) =>
                         {
                             ApplyMarkdownHighlighting();
@@ -890,13 +814,11 @@ namespace Text_editor_1
                     }
                 }
 
-                // ✅ Покращене застосування до меню
                 if (menuStrip1 != null)
                 {
                     menuStrip1.BackColor = theme.MenuBackColor;
                     menuStrip1.ForeColor = theme.MenuForeColor;
                     
-                    // ✅ Додаткові налаштування для темної теми
                     if (theme.Name == "Dark")
                     {
                         menuStrip1.RenderMode = ToolStripRenderMode.Professional;
@@ -914,13 +836,11 @@ namespace Text_editor_1
                     }
                 }
 
-                // Застосувати до статус бару
                 if (statusStrip1 != null)
                 {
                     statusStrip1.BackColor = theme.StatusBarBackColor;
                     statusStrip1.ForeColor = theme.StatusBarForeColor;
                     
-                    // ✅ Додаткові налаштування для темної теми
                     if (theme.Name == "Dark")
                     {
                         statusStrip1.RenderMode = ToolStripRenderMode.Professional;
@@ -938,17 +858,15 @@ namespace Text_editor_1
                     }
                 }
 
-                System.Diagnostics.Debug.WriteLine($"✅ Applied theme: {theme.Name}");
+                System.Diagnostics.Debug.WriteLine($"Applied theme: {theme.Name}");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"❌ Failed to apply theme: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Failed to apply theme: {ex.Message}");
             }
         }
 
-        /// <summary>
-        /// Застосувати тему до пункту меню та його підпунктів
-        /// </summary>
+
         private void ApplyThemeToMenuItem(ToolStripMenuItem item, EditorTheme theme)
         {
             if (item == null || theme == null) return;
@@ -956,7 +874,7 @@ namespace Text_editor_1
             item.BackColor = theme.MenuBackColor;
             item.ForeColor = theme.MenuForeColor;
 
-            // Рекурсивно застосувати до підпунктів
+
             foreach (ToolStripItem subItem in item.DropDownItems)
             {
                 if (subItem is ToolStripMenuItem menuItem)
@@ -975,9 +893,7 @@ namespace Text_editor_1
 
         #region Markdown Syntax Highlighting
 
-        /// <summary>
-        /// ✅ Максимально оптимізована підсвітка синтаксису Markdown
-        /// </summary>
+
         private void ApplyMarkdownHighlighting()
         {
             if (richTextBox1 == null || string.IsNullOrEmpty(richTextBox1.Text) || _isHighlighting)
@@ -985,28 +901,21 @@ namespace Text_editor_1
 
             try
             {
-                // ✅ Встановити прапорець для запобігання повторних викликів
+
                 _isHighlighting = true;
                 
-                // Зберегти поточний текст для порівняння
                 _lastHighlightedText = richTextBox1.Text;
                 
-                // Зберегти позицію курсора
                 int cursorPosition = richTextBox1.SelectionStart;
                 
-                // ✅ Відключити всі оновлення та події
                 richTextBox1.SuspendLayout();
                 
-                // ✅ Тимчасово відключити TextChanged щоб запобігти зворотним викликам
                 richTextBox1.TextChanged -= richTextBox1_TextChanged;
                 
-                // ✅ Швидке очищення попередньої підсвітки
                 ClearPreviousHighlightingOptimized();
                 
-                // ✅ Застосувати підсвітку тільки якщо текст не занадто великий
-                if (richTextBox1.Text.Length < 50000) // Ліміт для продуктивності
+                if (richTextBox1.Text.Length < 50000) 
                 {
-                    // Застосувати підсвітку в оптимізованому порядку
                     HighlightMarkdownCodeBlocks();
                     HighlightMarkdownInlineCode();
                     HighlightMarkdownHeaders();
@@ -1018,21 +927,19 @@ namespace Text_editor_1
                     HighlightMarkdownHorizontalRules();
                 }
                 
-                // ✅ Відновити позицію курсора
                 richTextBox1.SelectionStart = Math.Min(cursorPosition, richTextBox1.Text.Length);
                 richTextBox1.SelectionLength = 0;
                 
-                System.Diagnostics.Debug.WriteLine($"✅ Optimized Markdown highlighting applied to {richTextBox1.Text.Length} chars");
+                System.Diagnostics.Debug.WriteLine($"Optimized Markdown highlighting applied to {richTextBox1.Text.Length} chars");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"❌ Markdown highlighting error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Markdown highlighting error: {ex.Message}");
             }
             finally
             {
                 try
                 {
-                    // ✅ Обов'язково відновити події та layout
                     richTextBox1.TextChanged += richTextBox1_TextChanged;
                     richTextBox1.ResumeLayout();
                     _isHighlighting = false;
@@ -1045,18 +952,14 @@ namespace Text_editor_1
             }
         }
 
-        /// <summary>
-        /// ✅ Оптимізоване очищення підсвітки
-        /// </summary>
+
         private void ClearPreviousHighlightingOptimized()
         {
             try
             {
-                // Отримати поточну тему швидше
                 var currentTheme = _currentSettings?.Theme != null ? 
                     EditorTheme.GetByName(_currentSettings.Theme) : EditorTheme.Light;
                 
-                // ✅ Швидке очищення без зайвих операцій
                 richTextBox1.SelectAll();
                 richTextBox1.SelectionColor = currentTheme.TextBoxForeColor;
                 richTextBox1.SelectionFont = richTextBox1.Font;
@@ -1069,22 +972,16 @@ namespace Text_editor_1
             }
         }
 
-        /// <summary>
-        /// ✅ Підсвітка блоків коду ```code```
-        /// </summary>
+
         private void HighlightMarkdownCodeBlocks()
         {
             var codeColor = Color.FromArgb(100, 150, 100);
             var codeFont = new Font("Consolas", richTextBox1.Font.Size, FontStyle.Regular);
             
-            // Покращений паттерн для блоків коду
             var pattern = @"```[\s\S]*?```";
             HighlightPattern(pattern, codeColor, FontStyle.Regular, codeFont, Color.FromArgb(240, 240, 240));
         }
 
-        /// <summary>
-        /// ✅ Підсвітка інлайн коду `code`
-        /// </summary>
         private void HighlightMarkdownInlineCode()
         {
             var codeColor = Color.FromArgb(100, 150, 100);
@@ -1095,9 +992,6 @@ namespace Text_editor_1
             HighlightPattern(pattern, codeColor, FontStyle.Regular, codeFont, Color.FromArgb(245, 245, 245));
         }
 
-        /// <summary>
-        /// ✅ Покращена підсвітка заголовків
-        /// </summary>
         private void HighlightMarkdownHeaders()
         {
             var text = richTextBox1.Text;
@@ -1119,7 +1013,6 @@ namespace Text_editor_1
 
                     if (headerLevel > 0 && headerLevel <= 6)
                     {
-                        // Визначити колір залежно від рівня
                         Color headerColor = GetHeaderColor(headerLevel);
                         float fontSize = richTextBox1.Font.Size + (7 - headerLevel);
                         
@@ -1136,37 +1029,30 @@ namespace Text_editor_1
             }
         }
 
-        /// <summary>
-        /// ✅ Отримати колір для заголовка залежно від рівня
-        /// </summary>
         private Color GetHeaderColor(int level)
         {
             switch (level)
             {
-                case 1: return Color.FromArgb(0, 80, 160);   // Темно-синій
-                case 2: return Color.FromArgb(0, 100, 180);  // Синій
-                case 3: return Color.FromArgb(0, 120, 200);  // Світло-синій
-                case 4: return Color.FromArgb(60, 140, 220); // Блакитний
-                case 5: return Color.FromArgb(80, 160, 240); // Світло-блакитний
-                case 6: return Color.FromArgb(100, 180, 255);// Дуже світло-блакитний
+                case 1: return Color.FromArgb(0, 80, 160);   
+                case 2: return Color.FromArgb(0, 100, 180);  
+                case 3: return Color.FromArgb(0, 120, 200);  
+                case 4: return Color.FromArgb(60, 140, 220); 
+                case 5: return Color.FromArgb(80, 160, 240); 
+                case 6: return Color.FromArgb(100, 180, 255);
                 default: return Color.FromArgb(0, 100, 200);
             }
         }
 
-        /// <summary>
-        /// ✅ Покращена підсвітка жирного тексту **text**
-        /// </summary>
+
         private void HighlightMarkdownBoldText()
         {
             var boldColor = Color.FromArgb(150, 50, 50);
-            // Покращений паттерн який не конфліктує з іншими елементами
             var pattern = @"(?<!\*)\*\*(?!\s)([^\*\r\n]+?)(?<!\s)\*\*(?!\*)";
             HighlightPattern(pattern, boldColor, FontStyle.Bold);
         }
 
-        /// <summary>
-        /// ✅ Покращена підсвітка курсивного тексту *text*
-        /// </summary>
+
+
         private void HighlightMarkdownItalicText()
         {
             var italicColor = Color.FromArgb(100, 100, 150);
@@ -1175,9 +1061,7 @@ namespace Text_editor_1
             HighlightPattern(pattern, italicColor, FontStyle.Italic);
         }
 
-        /// <summary>
-        /// ✅ Покращена підсвітка посилань [text](url)
-        /// </summary>
+
         private void HighlightMarkdownLinks()
         {
             var linkColor = Color.FromArgb(0, 150, 200);
@@ -1191,9 +1075,7 @@ namespace Text_editor_1
             HighlightPattern(autoLinkPattern, linkColor, FontStyle.Underline);
         }
 
-        /// <summary>
-        /// ✅ Покращена підсвітка цитат > text
-        /// </summary>
+   
         private void HighlightMarkdownQuotes()
         {
             var quoteColor = Color.FromArgb(120, 120, 120);
@@ -1221,25 +1103,19 @@ namespace Text_editor_1
             }
         }
 
-        /// <summary>
-        /// ✅ Покращена підсвітка списків
-        /// </summary>
+
         private void HighlightMarkdownLists()
         {
             var listColor = Color.FromArgb(150, 100, 50);
             
-            // Маркіровані списки з покращеним паттерном
             var unorderedListPattern = @"^(\s*)[-*+](\s)";
             HighlightPattern(unorderedListPattern, listColor, FontStyle.Bold);
             
-            // Номером списки
+
             var orderedListPattern = @"^(\s*)\d+\.(\s)";
             HighlightPattern(orderedListPattern, listColor, FontStyle.Bold);
         }
 
-        /// <summary>
-        /// ✅ Підсвітка горизонтальних ліній --- 
-        /// </summary>
         private void HighlightMarkdownHorizontalRules()
         {
             var hrColor = Color.FromArgb(180, 180, 180);
@@ -1249,19 +1125,15 @@ namespace Text_editor_1
             HighlightPattern(hrPattern, hrColor, FontStyle.Bold);
         }
 
-        // ✅ Кеш для регулярних виразів - підвищує продуктивність
         private static readonly System.Collections.Generic.Dictionary<string, System.Text.RegularExpressions.Regex> _regexCache = 
             new System.Collections.Generic.Dictionary<string, System.Text.RegularExpressions.Regex>();
 
-        /// <summary>
-        /// ✅ Максимально оптимізований метод для підсвітки з кешуванням регулярних виразів
-        /// </summary>
+
         private void HighlightPattern(string pattern, Color color, FontStyle fontStyle, 
             Font customFont = null, Color? backgroundColor = null)
         {
             try
             {
-                // ✅ Використовувати кеш для регулярних виразів
                 if (!_regexCache.TryGetValue(pattern, out var regex))
                 {
                     regex = new System.Text.RegularExpressions.Regex(pattern, 
@@ -1272,13 +1144,12 @@ namespace Text_editor_1
 
                 var matches = regex.Matches(richTextBox1.Text);
                 
-                // ✅ Обмежити кількість матчів для продуктивності
                 int matchCount = 0;
                 const int maxMatches = 1000;
 
                 foreach (System.Text.RegularExpressions.Match match in matches)
                 {
-                    if (++matchCount > maxMatches) break; // Запобігти залежанню на великих файлах
+                    if (++matchCount > maxMatches) break; 
                     
                     if (match.Index >= 0 && match.Index + match.Length <= richTextBox1.Text.Length)
                     {
@@ -1309,21 +1180,17 @@ namespace Text_editor_1
             }
         }
 
-        /// <summary>
-        /// ✅ Швидке очищення підсвітки синтаксису
-        /// </summary>
+
         private void ClearSyntaxHighlighting()
         {
             if (richTextBox1 == null) return;
 
             try
             {
-                // Зберегти позицію курсора
                 int cursorPosition = richTextBox1.SelectionStart;
                 
                 richTextBox1.SuspendLayout();
                 
-                // Очистити всі кольори та стилі
                 richTextBox1.SelectAll();
                 richTextBox1.SelectionColor = richTextBox1.ForeColor;
                 richTextBox1.SelectionFont = richTextBox1.Font;
@@ -1331,11 +1198,9 @@ namespace Text_editor_1
                 
                 richTextBox1.ResumeLayout();
                 
-                // Відновити позицію курсора
                 richTextBox1.SelectionStart = Math.Min(cursorPosition, richTextBox1.Text.Length);
                 richTextBox1.SelectionLength = 0;
-                
-                // Встановити правильний колір виділення згідно з поточною темою
+
                 if (_currentSettings != null)
                 {
                     var currentTheme = EditorTheme.GetByName(_currentSettings.Theme);
@@ -1345,12 +1210,12 @@ namespace Text_editor_1
                     }
                 }
                 
-                System.Diagnostics.Debug.WriteLine("✅ Syntax highlighting cleared successfully");
+                System.Diagnostics.Debug.WriteLine(" Syntax highlighting cleared successfully");
             }
             catch (Exception ex)
             {
                 richTextBox1.ResumeLayout();
-                System.Diagnostics.Debug.WriteLine($"❌ Clear highlighting error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($" Clear highlighting error: {ex.Message}");
             }
         }
 
@@ -1366,9 +1231,7 @@ namespace Text_editor_1
         
         public Document GetCurrentDocument() => _currentDocument;
 
-        /// <summary>
-        /// Отримати статистику роботи з документами
-        /// </summary>
+
         public DocumentServiceStatistics GetDocumentStatistics()
         {
             return _documentService?.GetStatistics();
@@ -1378,13 +1241,11 @@ namespace Text_editor_1
 
         #region Observer Pattern - Auto-Save
 
-        /// <summary>
-        /// Observer Pattern - автоматичне збереження
-        /// </summary>
+    
         private void InitializeAutoSave()
         {
             _autoSaveTimer = new Timer();
-            _autoSaveTimer.Interval = 30000; // 30 секунд
+            _autoSaveTimer.Interval = 30000; 
             _autoSaveTimer.Tick += AutoSaveTimer_Tick;
             _autoSaveTimer.Start();
         }
@@ -1397,7 +1258,6 @@ namespace Text_editor_1
             {
                 try
                 {
-                    // Створити резервну копію через DocumentService
                     var backupPath = _currentDocument.FilePath + ".autosave";
                     File.WriteAllText(backupPath, _currentDocument.Content);
                     
@@ -1424,10 +1284,8 @@ namespace Text_editor_1
                 _markdownHighlightTimer?.Stop();
                 _markdownHighlightTimer?.Dispose();
                 
-                // ✅ Очистити кеш регулярних виразів
                 _regexCache.Clear();
                 
-                // ✅ Звільнити ресурси сервісу розширень
                 try
                 {
                     if (_extensionsService != null)
@@ -1437,17 +1295,15 @@ namespace Text_editor_1
                         _extensionsService.SnippetInserted -= OnExtensionEvent;
                         _extensionsService.BookmarkToggled -= OnExtensionEvent;
                         
-                        // Сервіс розширень не має Dispose, але очищуємо посилання
                         _extensionsService = null;
-                        System.Diagnostics.Debug.WriteLine("✅ Extensions service disposed");
+                        System.Diagnostics.Debug.WriteLine("Extensions service disposed");
                     }
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"❌ Error disposing extensions service: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"Error disposing extensions service: {ex.Message}");
                 }
                 
-                // Відписатися від подій DocumentService
                 if (_documentService != null)
                 {
                     _documentService.DocumentAdded -= OnDocumentServiceEvent;
@@ -1469,7 +1325,6 @@ namespace Text_editor_1
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            // ✅ Ctrl+H для ручного застосування підсвітки Markdown
             if (keyData == (Keys.Control | Keys.H))
             {
                 if (!string.IsNullOrEmpty(_currentDocument?.FilePath) && 
@@ -1486,7 +1341,6 @@ namespace Text_editor_1
                 }
             }
 
-            // ✅ Ctrl+Shift+R для скидання форматування тексту
             if (keyData == (Keys.Control | Keys.Shift | Keys.R))
             {
                 if (_currentSettings != null)
@@ -1503,7 +1357,6 @@ namespace Text_editor_1
                 return true;
             }
 
-            // ✅ Ctrl+Shift+M для перемикання Markdown підсвітки
             if (keyData == (Keys.Control | Keys.Shift | Keys.M))
             {
                 _markdownHighlightEnabled = !_markdownHighlightEnabled;
@@ -1525,10 +1378,8 @@ namespace Text_editor_1
                 return true;
             }
 
-            // ✅ Розширені скорочення для нових функцій
             if (_extensionsService != null && _extensionsService.IsExtensionsEnabled)
             {
-                // Ctrl+B - Toggle bookmark
                 if (keyData == (Keys.Control | Keys.B))
                 {
                     try
@@ -1542,7 +1393,6 @@ namespace Text_editor_1
                     }
                 }
 
-                // F2 - Next bookmark
                 if (keyData == Keys.F2)
                 {
                     try
@@ -1560,7 +1410,6 @@ namespace Text_editor_1
                     }
                 }
 
-                // Shift+F2 - Previous bookmark
                 if (keyData == (Keys.Shift | Keys.F2))
                 {
                     try
@@ -1578,7 +1427,6 @@ namespace Text_editor_1
                     }
                 }
 
-                // F12 - Show extensions info
                 if (keyData == Keys.F12)
                 {
                     try
@@ -1594,7 +1442,6 @@ namespace Text_editor_1
                     }
                 }
 
-                // Ctrl+K, Ctrl+S - Trigger snippet (example)
                 if (keyData == (Keys.Control | Keys.K))
                 {
                     ShowStatusMessage("Press S for snippet, M for macro commands", 2000);
@@ -1609,49 +1456,39 @@ namespace Text_editor_1
 
         #region Text Formatting Reset
 
-        /// <summary>
-        /// ✅ Повністю скинути форматування тексту до базових налаштувань теми
-        /// </summary>
         private void ResetTextFormatting(EditorTheme theme)
         {
             if (richTextBox1 == null || theme == null) return;
 
             try
             {
-                // Зберегти позицію та текст
                 int cursorPosition = richTextBox1.SelectionStart;
                 string currentText = richTextBox1.Text;
                 
-                // Тимчасово відключити оновлення для продуктивності
                 richTextBox1.SuspendLayout();
                 
-                // Очистити весь текст та форматування
                 richTextBox1.Clear();
                 
-                // Встановити базові кольори
                 richTextBox1.BackColor = theme.TextBoxBackColor;
                 richTextBox1.ForeColor = theme.TextBoxForeColor;
                 richTextBox1.SelectionBackColor = theme.SelectionBackColor;
                 
-                // Повернути текст
                 richTextBox1.Text = currentText;
                 
-                // Відновити позицію курсора
                 if (cursorPosition <= richTextBox1.Text.Length)
                 {
                     richTextBox1.SelectionStart = cursorPosition;
                 }
                 richTextBox1.SelectionLength = 0;
                 
-                // Включити оновлення
                 richTextBox1.ResumeLayout();
                 
-                System.Diagnostics.Debug.WriteLine("✅ Text formatting reset completed");
+                System.Diagnostics.Debug.WriteLine("Text formatting reset completed");
             }
             catch (Exception ex)
             {
-                richTextBox1.ResumeLayout(); // Забезпечити відновлення layout при помилці
-                System.Diagnostics.Debug.WriteLine($"❌ Text formatting reset error: {ex.Message}");
+                richTextBox1.ResumeLayout();
+                System.Diagnostics.Debug.WriteLine($"Text formatting reset error: {ex.Message}");
             }
         }
 
@@ -1659,16 +1496,13 @@ namespace Text_editor_1
 
         #region Extended Edit Functions (Event Handlers Stubs)
 
-        // ✅ Заглушки для обробників подій Edit меню (якщо будуть додані через Designer)
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Заглушка - можна реалізувати пізніше
             ShowStatusMessage("Undo function ready for implementation", 2000);
         }
 
         private void redoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Заглушка - можна реалізувати пізніше
             ShowStatusMessage("Redo function ready for implementation", 2000);
         }
 
@@ -1747,7 +1581,6 @@ namespace Text_editor_1
 
         private void findReplaceToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Заглушка для Find & Replace
             ShowStatusMessage("Find & Replace function ready for implementation", 2000);
         }
 
@@ -1760,7 +1593,6 @@ namespace Text_editor_1
                 
                 using (var goToForm = new GoToLineForm(totalLines, currentLine))
                 {
-                    // ✅ Застосувати поточну тему
                     if (_currentSettings != null)
                     {
                         var currentTheme = EditorTheme.GetByName(_currentSettings.Theme);
@@ -1781,9 +1613,6 @@ namespace Text_editor_1
 
         #region Simple Helper Methods
 
-        /// <summary>
-        /// Простий перехід до рядка без складної логіки
-        /// </summary>
         private void GoToLineSimple(int lineNumber)
         {
             try
@@ -1810,9 +1639,6 @@ namespace Text_editor_1
             }
         }
 
-        /// <summary>
-        /// Простий метод застосування форматування
-        /// </summary>
         private void ApplySimpleFormatting(FontStyle style)
         {
             try
@@ -1839,16 +1665,12 @@ namespace Text_editor_1
             }
         }
 
-        /// <summary>
-        /// Простий метод зміни кодування
-        /// </summary>
         private void ChangeEncodingSimple(string encodingName)
         {
             try
             {
                 if (_currentDocument != null)
                 {
-                    // Знайти кодування в репозиторії
                     var encoding = _encodingRepository?.GetByName(encodingName);
                     if (encoding != null)
                     {
@@ -1932,7 +1754,6 @@ namespace Text_editor_1
                 {
                     using (var bookmarksForm = new BookmarksForm(_extensionsService.Bookmarks, richTextBox1))
                     {
-                        // ✅ Застосувати поточну тему
                         if (_currentSettings != null)
                         {
                             var currentTheme = EditorTheme.GetByName(_currentSettings.Theme);
@@ -1958,7 +1779,6 @@ namespace Text_editor_1
                 {
                     using (var snippetsForm = new SnippetsForm(_extensionsService.Snippets, _extensionsService.CurrentLanguage))
                     {
-                        // ✅ Застосувати поточну тему
                         if (_currentSettings != null)
                         {
                             var currentTheme = EditorTheme.GetByName(_currentSettings.Theme);
@@ -1967,7 +1787,6 @@ namespace Text_editor_1
 
                         if (snippetsForm.ShowDialog() == DialogResult.OK && snippetsForm.SelectedSnippet != null)
                         {
-                            // Вставити сніппет у поточну позицію курсора
                             int cursorPosition = richTextBox1.SelectionStart;
                             _extensionsService.Snippets.InsertSnippet(snippetsForm.SelectedSnippet, cursorPosition);
                             ShowStatusMessage($"Inserted snippet: {snippetsForm.SelectedSnippet.Name}", 2000);
@@ -2003,9 +1822,7 @@ namespace Text_editor_1
         #endregion
     }
 
-    /// <summary>
-    /// ✅ Спеціальний рендер для темного меню
-    /// </summary>
+ 
     public class DarkMenuRenderer : ToolStripProfessionalRenderer
     {
         private readonly EditorTheme _theme;
@@ -2043,7 +1860,6 @@ namespace Text_editor_1
 
         protected override void OnRenderToolStripBorder(ToolStripRenderEventArgs e)
         {
-            // Не малювати границю для темної теми
         }
 
         protected override void OnRenderSeparator(ToolStripSeparatorRenderEventArgs e)
@@ -2057,9 +1873,6 @@ namespace Text_editor_1
         }
     }
 
-    /// <summary>
-    /// ✅ Спеціальний рендер для темного статус бару
-    /// </summary>
     public class DarkStatusStripRenderer : ToolStripProfessionalRenderer
     {
         private readonly EditorTheme _theme;

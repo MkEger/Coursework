@@ -2,9 +2,7 @@ using System;
 
 namespace TextEditorMK.Models
 {
-    /// <summary>
-    /// Модель закладки для навігації по коду
-    /// </summary>
+
     public class Bookmark
     {
         public int Id { get; set; }

@@ -20,14 +20,14 @@ namespace TextEditorMK.Data
         {
             try
             {
-                // Створити базу даних якщо не існує
+               
                 TestAndCreateDatabase();
 
                 using (var connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
 
-                    // ✅ Додати базові дані тільки якщо таблиці порожні
+                 
                     SeedDataIfEmpty(connection);
 
                     MessageBox.Show("Database connected successfully! Your data is preserved.", "MySQL Ready",
@@ -44,7 +44,7 @@ namespace TextEditorMK.Data
 
         private void TestAndCreateDatabase()
         {
-            // Підключення без вказання конкретної БД
+            
             string connectionWithoutDb = "Server=localhost;Port=3306;Uid=root;Pwd=root;";
 
             using (var connection = new MySqlConnection(connectionWithoutDb))
@@ -59,9 +59,7 @@ namespace TextEditorMK.Data
             }
         }
 
-        /// <summary>
-        /// Додати базові дані тільки якщо таблиці порожні (зберегти існуючі дані!)
-        /// </summary>
+
         private void SeedDataIfEmpty(MySqlConnection connection)
         {
             // Перевірити чи TextEncodings порожня
@@ -84,7 +82,7 @@ namespace TextEditorMK.Data
                 }
             }
 
-            // Перевірити чи EditorSettings порожня
+
             string checkSettings = "SELECT COUNT(*) FROM EditorSettings";
             using (var cmd = new MySqlCommand(checkSettings, connection))
             {
@@ -101,9 +99,6 @@ namespace TextEditorMK.Data
                     }
                 }
             }
-
-            // ✅ НЕ додаємо тестові RecentFiles - залишаємо існуючі дані!
-            // RecentFiles зберігають реальні дані користувача
         }
 
         public MySqlConnection GetConnection()

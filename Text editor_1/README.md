@@ -1,83 +1,52 @@
 # Text Editor MK - Professional Course Project
 
-## Як запустити проект
+## ?? Getting Started
 
-### Системні вимоги:
-- **Windows OS** (Windows 7 SP1 або новіша)
-- **.NET Framework 4.7.2** або новіша версія
+### System Requirements:
+- **Windows OS** (Windows 7 SP1 or higher)
+- **.NET Framework 4.7.2** or newer version
 - **Visual Studio 2017/2019/2022** 
-- **MySQL 8.0+** (опціонально)
+- **MySQL 8.0+** (optional)
 
-### Кроки запуску:
+### Quick Start:
 
-1. **Клонування репозиторію:**
+1. **Clone the repository:**
 ```bash
 git clone https://github.com/MkEger/Text-editor_1
 cd Text-editor_1
 ```
 
-2. **Відкриття проекту:**
-   - Відкрийте файл `Text editor_1.sln` у Visual Studio
+2. **Open the project:**
+   - Open the `Text editor_1.sln` file in Visual Studio
 
-3. **Збірка та запуск:**
-   - Натисніть **F5** для запуску з налагодженням
-   - Або **Ctrl+F5** для запуску без налагодження
+3. **Build and run:**
+   - Press **F5** to build and run with debugging
+   - Or **Ctrl+F5** to run without debugging
 
-### Налаштування MySQL підключення:
+### MySQL Database Configuration:
 
-**ВАЖЛИВО:** MySQL потрібна тільки для функції "Недавні файли". Без MySQL програма працює повноцінно.
+**Note:** MySQL database is optional for the "Recent Files" feature. The application works without MySQL configuration.
 
-#### Де змінювати налаштування підключення:
-1. **Знайдіть клас `MySqlDatabaseHelper`** у проекті
-2. **Або змініть connection string у репозиторіях:**
+#### To enable database functionality:
+1. **Remove the `MySqlDatabaseHelper`** from the project
+2. **Or configure the connection string in the constructor:**
 
-У файлах `MySqlRecentFileRepository.cs` та `MySqlDocumentRepository.cs` знайдіть рядки з підключенням:
+In files `MySqlRecentFileRepository.cs` and `MySqlDocumentRepository.cs`, modify the connection string:
 
 ```csharp
-// ЗМІНІТЬ ЦІ ПАРАМЕТРИ НА СВОЇ:
+// CHANGE THIS CONNECTION STRING:
 private readonly string _connectionString = 
     "Server=localhost;Database=texteditor_db;Uid=your_username;Pwd=your_password;";
 
-// АБО у методі GetConnection():
+// Or in the GetConnection() method:
 private MySqlConnection GetConnection()
 {
     return new MySqlConnection("Server=localhost;Database=texteditor_db;Uid=root;Pwd=your_password;");
 }
 ```
 
-#### Параметри для заміни:
-- **Server**: Адреса MySQL сервера (зазвичай `localhost`)
-- **Database**: Назва бази даних (створіть `texteditor_db`)
-- **Uid**: Ім'я користувача MySQL (зазвичай `root`)
-- **Pwd**: Пароль для MySQL користувача
-
-#### Створення бази даних:
-```sql
-CREATE DATABASE texteditor_db;
-USE texteditor_db;
-
-CREATE TABLE RecentFiles (
-    Id INT AUTO_INCREMENT PRIMARY KEY,
-    FilePath VARCHAR(500) NOT NULL,
-    FileName VARCHAR(255) NOT NULL,
-    LastOpenedAt DATETIME NOT NULL,
-    OpenCount INT DEFAULT 1
-);
-
-CREATE TABLE Documents (
-    Id INT AUTO_INCREMENT PRIMARY KEY,
-    FileName VARCHAR(255) NOT NULL,
-    FilePath VARCHAR(500),
-    Content LONGTEXT,
-    EncodingId INT,
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    ModifiedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    IsSaved BOOLEAN DEFAULT FALSE
-);
-```
-
-**Примітка:** Програма готова до використання відразу після клонування та збірки. MySQL підключення опціональне.
-
----
-
-*Останнє оновлення: Грудень 2024*
+#### Connection parameters:
+- **Server**: MySQL server address (usually `localhost`)
+- **Database**: Database name (create `texteditor_db`)
+- **Uid**: MySQL username (usually `root`)
+- **Pwd**: Password for MySQL user

@@ -5,9 +5,7 @@ using TextEditorMK.Models;
 
 namespace TextEditorMK.Helpers
 {
-    /// <summary>
-    ///  Помічник для покращеного застосування тем до WinForms контролів
-    /// </summary>
+
     public static class ThemeHelper
     {
         public static void ApplyThemeToForm(Form form, EditorTheme theme)

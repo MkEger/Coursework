@@ -6,9 +6,7 @@ using TextEditorMK.Models;
 
 namespace TextEditorMK.Services
 {
-    /// <summary>
-    /// Service Layer Pattern - Сервіс для управління закладками
-    /// </summary>
+
     public class BookmarkService
     {
         private readonly RichTextBox _textBox;

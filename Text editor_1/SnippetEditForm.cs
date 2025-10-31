@@ -5,9 +5,7 @@ using TextEditorMK.Models;
 
 namespace Text_editor_1
 {
-    /// <summary>
-    /// Форма для редагування сніппету
-    /// </summary>
+
     public partial class SnippetEditForm : Form
     {
         public CodeSnippet Snippet { get; private set; }
@@ -22,20 +20,16 @@ namespace Text_editor_1
             LoadSnippetData();
         }
 
-        /// <summary>
-        /// ? Застосувати тему до форми
-        /// </summary>
+
         public void ApplyTheme(EditorTheme theme)
         {
             if (theme == null) return;
 
             try
             {
-                // Основні кольори форми
                 this.BackColor = theme.BackgroundColor;
                 this.ForeColor = theme.ForegroundColor;
 
-                // TextBox контроли
                 var textBoxes = new[] { nameTextBox, triggerTextBox, languageTextBox, descriptionTextBox, categoryTextBox, codeTextBox };
                 foreach (var textBox in textBoxes)
                 {
@@ -43,7 +37,6 @@ namespace Text_editor_1
                     textBox.ForeColor = theme.TextBoxForeColor;
                 }
 
-                // Кнопки
                 var buttons = new[] { okButton, cancelButton, insertVariableButton, previewButton };
                 foreach (var button in buttons)
                 {
@@ -51,7 +44,6 @@ namespace Text_editor_1
                     button.ForeColor = theme.ButtonForeColor;
                 }
 
-                // Labels
                 var labels = new[] { nameLabel, triggerLabel, languageLabel, descriptionLabel, categoryLabel, codeLabel };
                 foreach (var label in labels)
                 {
@@ -157,7 +149,6 @@ namespace Text_editor_1
         {
             string preview = codeTextBox.Text;
             
-            // Простий превью з заміною змінних
             preview = preview.Replace("$DATE", DateTime.Now.ToString("yyyy-MM-dd"));
             preview = preview.Replace("$TIME", DateTime.Now.ToString("HH:mm:ss"));
             preview = preview.Replace("$USER", Environment.UserName);

@@ -6,9 +6,7 @@ using TextEditorMK.Models;
 
 namespace TextEditorMK.Services
 {
-    /// <summary>
-    /// Service Layer Pattern - Сервіс для управління сніппетами коду
-    /// </summary>
+
     public class SnippetService
     {
         private readonly RichTextBox _textBox;
@@ -41,21 +39,20 @@ namespace TextEditorMK.Services
             {
                 string expandedCode = ExpandSnippet(snippet);
                 
-                // ? Зберегти поточне форматування
+
                 var currentFont = _textBox.Font;
                 var currentColor = _textBox.ForeColor;
                 
                 _textBox.SelectionStart = cursorPosition;
                 _textBox.SelectionLength = 0;
-                
-                // ? Встановити стандартне форматування перед вставкою
+
                 _textBox.SelectionFont = currentFont;
                 _textBox.SelectionColor = currentColor;
                 _textBox.SelectionBackColor = _textBox.BackColor;
                 
                 _textBox.SelectedText = expandedCode;
                 
-                // ? Відновити курсор після вставленого тексту
+
                 _textBox.SelectionStart = cursorPosition + expandedCode.Length;
                 _textBox.SelectionLength = 0;
 
@@ -102,7 +99,6 @@ namespace TextEditorMK.Services
 
             string code = snippet.Code;
             
-            // Замінити спеціальні змінні
             code = code.Replace("$DATE", DateTime.Now.ToString("yyyy-MM-dd"));
             code = code.Replace("$TIME", DateTime.Now.ToString("HH:mm:ss"));
             code = code.Replace("$USER", Environment.UserName);
@@ -112,7 +108,7 @@ namespace TextEditorMK.Services
 
         private void InitializeDefaultSnippets()
         {
-            // C# сніппети
+
             _snippets.AddRange(new[]
             {
                 new CodeSnippet
